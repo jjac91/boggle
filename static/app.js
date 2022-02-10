@@ -1,22 +1,33 @@
+let score = 0
+let gameOver = false
+let timer = 60
+let scoredWord = new Set()
 $("#guess-form").on("submit", async function handleSubmit (e){
     e.preventDefault();
-    
+    if(gameOver == true){
+        printMessage("Game Over")
+        clearTimeout()
+        return
+    }
     let guess = $("#guess").val()
     if (!guess) return
-    console.log(guess)
-    printMessage(guess)
+    
+    if (scoredWord.has(guess)){
+        printMessage("This has been scored")
+        return
+    }
 
     let validity = await isWord(guess)
-    console.log(validity)
-    
-    if (validity==="ok"){
-        printMessage("Valid Word")
+    if (validity==="not-word"){
+        printMessage("This is not a valid word")
     }
-    if (validity==="not-on-board"){
+    else if (validity==="not-on-board"){
         printMessage("This word is not on the board")
     }
-    if (validity==="not-a-word"){
-        printMessage("This is not a valid word")
+    else if (validity==="ok"){
+        printMessage("Valid Word")
+        addScore(guess)
+        recordWords(guess)
     }
 }
 )
@@ -29,8 +40,47 @@ async function isWord(word){
 
 }
 function printMessage(msg){
-    const $msgs = $("msgs")
+    const $msgs = $("#msgs")
     $msgs.empty()
-    $msgs.append(msg)
+    $msgs.append(`<p class="msg">${msg}</p>`)
     console.log(msg)
 }
+
+function addScore(word){
+    const $score= $("#score")
+    points = word.length
+    score = score+points
+    $score.text(score)
+    console.log(score)
+}
+
+async function endGame(){
+    gameOver = true
+    res= await axios.post(
+        `/game-over`,{score:score}
+    )
+    plays=res.data.games
+    if(res.data.brokerecord === true){
+        printMessage(`New High Score! You've played ${plays} times`)
+    }
+    if(res.data.brokerecord === false)
+        printMessage(`You've played ${plays} times`)
+}
+
+function timekeeper(){
+    const $timer = $("#timer")
+    if (timer == -1){
+        clearTimeout(clock)
+        endGame()
+    }
+    else{
+        timer--
+        $timer.text(timer)
+    }
+}
+function recordWords(word){
+    const $scoredWords = $("#wordlist")
+    scoredWord.add(word)
+    $scoredWords.append(`<li>${word}</li>`)
+}
+let clock = setInterval(timekeeper, 1000)

@@ -8,13 +8,16 @@
 </head>
 <body>
     <h1>Boggle!</h1>
-    <table>
-    {% for row in board %}
-    <tr>{% for char in row %}
-        <td>{{char}}</td>
-        {% endfor %}
-    </tr>
-    {% endfor %}
+    <table id="board">
+        <tbody>
+            {% for row in board %}
+            <tr>
+                {% for char in row %}
+                <td>{{char}}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
     <br>
     <form id="guess-form">
@@ -22,11 +25,15 @@
         <input type="text" id ="guess" name="guess">
         <button type="submit">Submit</button>
     </form>
-    <div id = "msgs">
-
-    </div>
+    Score:<p id ="score">0</p>
+    Timer:<p id ="timer">0</p>
+    <div id = "msgs"></div>
+    <ul id ="wordlist">You've found:    </ul>
     <script src="http://unpkg.com/jquery"></script>
     <script src="https://unpkg.com/axios@0.19.0/dist/axios.js"></script>
     <script src="static/app.js"></script>
+    <script>
+        let game = new Game;
+    </script>
 </body>
 </html>
