@@ -2,9 +2,11 @@ class Game{
     constructor(){
     this.score = 0
     this.gameOver = false
-    this.timer = 5
+    this.timer = 60
     this.scoredWord = new Set()
     this.clock = setInterval(this.timekeeper.bind(this), 1000)
+
+    $("#guess-form").on("submit", this.handleSubmit.bind(this))
     }
 
 async handleSubmit (e){
@@ -55,17 +57,18 @@ async handleSubmit (e){
 
     addScore(word){
         const $score= $("#score")
-        points = word.length
+        let points = word.length
         this.score = this.score+points
         $score.text(this.score)
+        console.log(this.score)
     }
 
     async endGame(){
         this.gameOver = true
-        res= await axios.post(
+        let res= await axios.post(
             `/game-over`,{score:this.score}
         )
-        plays=res.data.games
+        let plays=res.data.games
         if(res.data.brokerecord === true){
             this.printMessage(`New High Score! You've played ${plays} times`)
         }
@@ -87,5 +90,6 @@ async handleSubmit (e){
         const $scoredWords = $("#wordlist")
         this.scoredWord.add(word)
         $scoredWords.append(`<li>${word}</li>`)
+        console.log(this.scoredWord)
     }
 }

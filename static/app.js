@@ -48,7 +48,7 @@ function printMessage(msg){
 
 function addScore(word){
     const $score= $("#score")
-    points = word.length
+    let points = word.length
     score = score+points
     $score.text(score)
     console.log(score)
@@ -56,10 +56,10 @@ function addScore(word){
 
 async function endGame(){
     gameOver = true
-    res= await axios.post(
+    let res= await axios.post(
         `/game-over`,{score:score}
     )
-    plays=res.data.games
+    let plays=res.data.games
     if(res.data.brokerecord === true){
         printMessage(`New High Score! You've played ${plays} times`)
     }
