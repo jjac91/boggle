@@ -1,8 +1,7 @@
-from cgitb import html
 from unittest import TestCase
 from urllib import response
 from app import app
-from flask import session
+from flask import session, json
 from boggle import Boggle
 
 
@@ -48,8 +47,20 @@ class FlaskTests(TestCase):
         self.assertEqual(response.json['result'], 'not-word')
 
     def test_highscore(self):
-        """Tests the response if the highscore is broken"""
-        with self.client:
-            self.client.post("/game-over", data={'score': 2})
-        self.assertEqual(response.json(
-            {"brokerecord": True, "games": 1}))
+        """Tests the response if the highscore is broken and the number of games
+        is updated"""
+        response = self.client.post(
+            "/game-over", data=json.dumps({"score": 2}), content_type='application/json')
+        self.assertEqual(response.json["brokerecord"], True)
+        self.assertEqual(response.json["games"], 1)
+
+    def test_no_highscore(self):
+        """Tests the response if the highscore is not broken and the number of games
+        is updated"""
+        with self.client as client:
+            with client.session_transaction() as session_test:
+                session_test["highscore"] = 5
+        response = self.client.post(
+            "/game-over", data=json.dumps({"score": 5}), content_type='application/json')
+        self.assertEqual(response.json["brokerecord"], False)
+        self.assertEqual(response.json["games"], 1)
